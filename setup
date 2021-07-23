@@ -17,17 +17,22 @@ count=1
 dim="\033[2m"
 reset="\033[0m"
 
-brews=(
+formulas=(
   git
 )
 
 casks=(
   alfred
+  discord
+  firefox
   google-chrome
+  imageoptim
   iterm2
+  postman
   spectacle
   spotify
   visual-studio-code
+  vlc
 )
 
 # -----------------------------------------------------------------------------
@@ -124,7 +129,13 @@ fi
 
 if ! [ -x "$(command -v brew)" ]; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  # export PATH?
+
+  if [[ $(uname -p) == "arm" ]]; then
+    export PATH="/opt/homebrew/bin:$PATH"
+  else
+    export PATH="/usr/local/bin:$PATH"
+  fi
+
   print_success "Homebrew installed"
 else
   print_muted "Homebrew already installed"
@@ -134,34 +145,36 @@ fi
 # Update Homebrew.
 # -----------------------------------------------------------------------------
 
+chapter "Updating Homebrew"
+
 brew update >/dev/null 2>&1
 
 # -----------------------------------------------------------------------------
-# Install brews.
+# Install Homebrew formulas.
 # -----------------------------------------------------------------------------
 
-chapter "Installing Homebrew formulae"
+chapter "Installing Homebrew formulas"
 
-for brew in ${brews[*]}; do
-  if [[ ! $(brew list --formula | grep $brew) ]]; then
-    echo_install "Installing $brew"
-    brew install --formula $brew >/dev/null
+for formula in ${formulas[*]}; do
+  if [[ ! $(brew list --formula | grep $formula) ]]; then
+    echo_install "Installing $formula"
+    brew install --formula $formula >/dev/null
     print_in_green "✓ installed\n"
   else
-    print_muted "$brew already installed"
+    print_muted "$formula already installed"
   fi
 done
 
 # -----------------------------------------------------------------------------
-# Install casks.
+# Install Homebrew casks.
 # -----------------------------------------------------------------------------
 
-chapter "Installing apps via Homebrew"
+chapter "Installing Homebrew casks"
 
 for cask in ${casks[*]}; do
   if [[ ! $(brew list --casks | grep $cask) ]]; then
     echo_install "Installing $cask"
-    brew install --cask -f $cask >/dev/null
+    brew install --cask $cask >/dev/null
     print_in_green "✓ installed\n"
   else
     print_muted "$cask already installed"
